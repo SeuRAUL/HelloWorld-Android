@@ -1,7 +1,10 @@
 package com.example.helloworld;
 
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.app.Activity;
+import android.content.SharedPreferences;
+import android.content.SharedPreferences.Editor;
 import android.util.Log;
 import android.view.Menu;
 import android.view.View;
@@ -11,8 +14,10 @@ import android.widget.Toast;
 
 public class MainActivity extends Activity {
 	
-	TextView tv;
-	EditText et;
+	private TextView tv;
+	private EditText et;
+	private String texto;
+	
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -23,6 +28,14 @@ public class MainActivity extends Activity {
         
         tv = (TextView)findViewById(R.id.textView1);
         et = (EditText)findViewById(R.id.editText1);
+        
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+        
+        this.texto = prefs.getString("texto", "");
+        if(!this.texto.equals("")){
+        	this.tv.setText(this.texto);
+        }
+        
     }
 
 
@@ -33,23 +46,15 @@ public class MainActivity extends Activity {
         return true;
     }
     
-    @Override
-    public void onStart(){
-    	Log.i("Start", "onStart");
-    }
-    
-    @Override
-    public void onResume(){
-    	Log.i("Resume", "onResume");
-    }
     
     public void botaoClicado(View v){
-    	Toast.makeText(this, "Hello world!", Toast.LENGTH_SHORT).show();
+    	
+    	this.texto = et.getText().toString();
+    	tv.setText(this.texto);
+    	
+    	Toast.makeText(this, texto, Toast.LENGTH_SHORT).show();
     	
     	Log.i("Botão", "Botão funfou!");
-    	
-    	tv.setText(et.getText());
-    	
     	/*if(tv.getText().equals("Clique!")){
     		tv.setText("Olá Mundo!");
     	}else{
@@ -57,5 +62,16 @@ public class MainActivity extends Activity {
     	}*/
     	
     }
+
     
+    @Override
+    public void onDestroy(){
+    	super.onDestroy();
+    	
+    	SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(this);
+    	
+    	Editor editor = prefs.edit();
+    	editor.putString("texto", this.texto);
+    	editor.commit();
+    }
 }
